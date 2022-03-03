@@ -2,6 +2,10 @@
 
 TLDR: the 8 initial guesses `MODEL LEVIN TAPPA GRABS DURGY FLYTE CHAWK SPOOR` provide enough information to *always* recover the hidden word in Wordle, no matter the hidden word. Can you find fewer than 8 (magic) words that also solve Wordle?
 
+## Updates
+
+- March 2nd, 2022: [Armavica](https://github.com/Armavica) has [found a set of 7 words](https://github.com/alexandres/magicwordschallenge/issues/1) that solve Wordle! They are CLANG FATTY ODDER RUMBA SKILL VERGE WHOOP.
+
 ## Solving Wordle offline
 
 [Other solvers](https://www.poirrier.ca/notes/wordle-optimal/) can solve Wordle in fewer guesses, but they do so *online*, using feedback from each guess to decide upon the next guess.
