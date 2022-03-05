@@ -214,8 +214,10 @@ std::vector<FiveLetterWord> LoadWordList(std::string filename)
 
 int main()
 {
-    std::vector<FiveLetterWord> hidden_words = LoadWordList("words.txt");
+    auto hidden_words = LoadWordList("words.txt");
+    auto guess_words = LoadWordList("words_full.txt");
     std::cerr << "Words in Hidden Dictionary: " << hidden_words.size() << std::endl;
+    std::cerr << "Words in Guess Dictionary: " << guess_words.size() << std::endl;
     while (true)
     {
         std::string line;
@@ -230,7 +232,22 @@ int main()
         {
             for (auto &c : word)
                 c = toupper(c);
-            solution.push_back(FiveLetterWord(word));
+            auto guess = FiveLetterWord(word);
+            auto found = false;
+            for (auto &valid_guess : guess_words)
+            {
+                if (valid_guess == guess)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                std::cerr << "Error: guess " << guess.to_s() << "  not in dictionary" << std::endl;
+                exit(1);
+            }
+            solution.push_back(guess);
         }
         auto is_solution = 1;
         for (auto &hidden : hidden_words)
