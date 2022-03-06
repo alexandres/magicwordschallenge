@@ -4,7 +4,9 @@ TLDR: the 8 initial guesses `MODEL LEVIN TAPPA GRABS DURGY FLYTE CHAWK SPOOR` pr
 
 ## Updates
 
-- March 2nd, 2022: [Armavica](https://github.com/Armavica) has [found a set of 7 words](https://github.com/alexandres/magicwordschallenge/issues/1) that solve Wordle! They are CLANG FATTY ODDER RUMBA SKILL VERGE WHOOP.
+- March 5th, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 6 words](https://github.com/alexandres/magicwordschallenge/issues/2) that solve Wordle! They are `COMBO FATTY GRRRL SPUDS VENGE WHILK`. This is very exciting: just one more word less and Wordle will be solved offline!
+
+- March 2nd, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 7 words](https://github.com/alexandres/magicwordschallenge/issues/1) that solve Wordle! They are `CLANG FATTY ODDER RUMBA SKILL VERGE WHOOP`.
 
 ## Solving Wordle offline
 
@@ -16,7 +18,7 @@ The fundamental question is: what is the smallest set of guesses which always so
 
 ## How I found the current 8 word solution
 
-I used a simple [genetic algorithm](https://github.com/repos-algorithms/genetic) and a [Wordle simulator](https://github.com/TylerGlaiel/wordlebot). 
+I used a simple [genetic algorithm](https://github.com/repos-algorithms/genetic) and a [Wordle simulator](https://github.com/TylerGlaiel/wordlebot). The [https://github.com/alexandres/magicwordschallenge/issues/2](algorithm that checks whether a solution is valid) is thanks to [Virgile Andreani](https://github.com/Armavica).
 
 If you'd like to solve for 7 words, change `GA_TARGET_SIZE` to 7 in `magicwords.cpp`. I ran the system for a couple of days searching for 7 words and failed. Maybe you'll have better luck.
 

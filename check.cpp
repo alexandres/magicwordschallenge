@@ -1,6 +1,9 @@
 // Wordle simulator from
 // https://github.com/TylerGlaiel/wordlebot
 
+// Conflicts algorithm thanks to Virgile Andreani at
+// https://github.com/alexandres/magicwordschallenge/issues/2
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -11,6 +14,7 @@
 #include <array>
 #include <climits>
 #include <sstream>
+#include <set>
 
 enum GuessResult
 {
@@ -131,71 +135,6 @@ WordHint evaluate_guess(const FiveLetterWord &guess, FiveLetterWord actual)
     return result;
 }
 
-bool IsWordPossible(const WordHint &hint, const FiveLetterWord &guess, FiveLetterWord word)
-{
-    // check greens
-    for (int i = 0; i < 5; i++)
-    {
-        if (hint[i] == CORRECT)
-        {
-            if (guess[i] != word[i])
-                return false;
-            word[i] = 0; // for yellows
-        }
-    }
-    // check yellows
-    for (int i = 0; i < 5; i++)
-    {
-        if (hint[i] == EXISTS_IN_DIFFERENT_SPOT)
-        {
-            if (guess[i] == word[i])
-                return false; // this would have been green, not yellow, so it fails
-
-            bool found = false;
-            for (int j = 0; j < 5; j++)
-            {
-                if (guess[i] == word[j])
-                {
-                    found = true;
-                    word[j] = 0; // for yellows
-                    break;
-                }
-            }
-            if (!found)
-                return false;
-        }
-    }
-    // check greys
-    for (int i = 0; i < 5; i++)
-    {
-        if (hint[i] == DOES_NOT_EXIST)
-        {
-            for (int j = 0; j < 5; j++)
-            {
-                if (guess[i] == word[j])
-                {
-                    return false;
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-std::vector<FiveLetterWord> FilterWordList(const WordHint &hint, const FiveLetterWord &guess, const std::vector<FiveLetterWord> &wordlist)
-{
-    std::vector<FiveLetterWord> res;
-
-    for (auto &word : wordlist)
-    {
-        if (IsWordPossible(hint, guess, word))
-            res.push_back(word);
-    }
-
-    return res;
-}
-
 std::vector<FiveLetterWord> LoadWordList(std::string filename)
 {
     std::vector<FiveLetterWord> res;
@@ -212,10 +151,28 @@ std::vector<FiveLetterWord> LoadWordList(std::string filename)
     return res;
 }
 
+std::vector<FiveLetterWord> hidden_words, guess_words;
+
+int conflicts(std::vector<FiveLetterWord> solution)
+{
+    std::set<std::vector<std::string>> all_feedbacks;
+    for (auto &hidden : hidden_words)
+    {
+        std::vector<std::string> feedbacks;
+        for (auto &guess : solution)
+        {
+            auto hint = evaluate_guess(guess, hidden);
+            feedbacks.push_back(hint.to_squares());
+        }
+        all_feedbacks.insert(feedbacks);
+    }
+    return hidden_words.size() - all_feedbacks.size();
+}
+
 int main()
 {
-    auto hidden_words = LoadWordList("words.txt");
-    auto guess_words = LoadWordList("words_full.txt");
+    hidden_words = LoadWordList("words.txt");
+    guess_words = LoadWordList("words_full.txt");
     std::cerr << "Words in Hidden Dictionary: " << hidden_words.size() << std::endl;
     std::cerr << "Words in Guess Dictionary: " << guess_words.size() << std::endl;
     while (true)
@@ -249,21 +206,7 @@ int main()
             }
             solution.push_back(guess);
         }
-        auto is_solution = 1;
-        for (auto &hidden : hidden_words)
-        {
-            std::vector<FiveLetterWord> possible_words = hidden_words;
-            for (auto &guess : solution)
-            {
-                auto hint = evaluate_guess(guess, hidden);
-                possible_words = FilterWordList(hint, guess, possible_words);
-            }
-            if (possible_words.size() > 1)
-            {
-                is_solution = 0;
-                break;
-            }
-        }
+        auto is_solution = conflicts(solution) == 0 ? 1 : 0;
         std::cout << is_solution << std::endl;
     }
     return 0;

@@ -4,6 +4,9 @@
 // Genetic algorithm code from
 // https://github.com/repos-algorithms/genetic
 
+// Conflicts algorithm thanks to Virgile Andreani at
+// https://github.com/alexandres/magicwordschallenge/issues/2
+
 #include <iostream>  // for cout etc.
 #include <vector>    // for vector class
 #include <string>    // for string class
@@ -21,6 +24,7 @@
 #include <climits>
 #include <sstream>
 #include <random>
+#include <set>
 
 #define GA_POPSIZE 100       // ga population size
 #define GA_MAXITER 1638400   // maximum iterations
@@ -148,71 +152,6 @@ WordHint evaluate_guess(const FiveLetterWord &guess, FiveLetterWord actual)
     return result;
 }
 
-bool IsWordPossible(const WordHint &hint, const FiveLetterWord &guess, FiveLetterWord word)
-{
-    // check greens
-    for (int i = 0; i < 5; i++)
-    {
-        if (hint[i] == CORRECT)
-        {
-            if (guess[i] != word[i])
-                return false;
-            word[i] = 0; // for yellows
-        }
-    }
-    // check yellows
-    for (int i = 0; i < 5; i++)
-    {
-        if (hint[i] == EXISTS_IN_DIFFERENT_SPOT)
-        {
-            if (guess[i] == word[i])
-                return false; // this would have been green, not yellow, so it fails
-
-            bool found = false;
-            for (int j = 0; j < 5; j++)
-            {
-                if (guess[i] == word[j])
-                {
-                    found = true;
-                    word[j] = 0; // for yellows
-                    break;
-                }
-            }
-            if (!found)
-                return false;
-        }
-    }
-    // check greys
-    for (int i = 0; i < 5; i++)
-    {
-        if (hint[i] == DOES_NOT_EXIST)
-        {
-            for (int j = 0; j < 5; j++)
-            {
-                if (guess[i] == word[j])
-                {
-                    return false;
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-std::vector<FiveLetterWord> FilterWordList(const WordHint &hint, const FiveLetterWord &guess, const std::vector<FiveLetterWord> &wordlist)
-{
-    std::vector<FiveLetterWord> res;
-
-    for (auto &word : wordlist)
-    {
-        if (IsWordPossible(hint, guess, word))
-            res.push_back(word);
-    }
-
-    return res;
-}
-
 std::vector<FiveLetterWord> LoadWordList(std::string filename)
 {
     std::vector<FiveLetterWord> res;
@@ -231,10 +170,26 @@ std::vector<FiveLetterWord> LoadWordList(std::string filename)
 
 std::vector<FiveLetterWord> hidden_words, guess_words;
 
+int conflicts(std::vector<FiveLetterWord> solution)
+{
+    std::set<std::vector<std::string>> all_feedbacks;
+    for (auto &hidden : hidden_words)
+    {
+        std::vector<std::string> feedbacks;
+        for (auto &guess : solution)
+        {
+            auto hint = evaluate_guess(guess, hidden);
+            feedbacks.push_back(hint.to_squares());
+        }
+        all_feedbacks.insert(feedbacks);
+    }
+    return hidden_words.size() - all_feedbacks.size();
+}
+
 struct ga_struct
 {
     std::vector<FiveLetterWord> str; // the string
-    unsigned int max;                // max hidden words solved
+    unsigned int conflicts;          // max hidden words solved
 };
 
 typedef std::vector<ga_struct> ga_vector; // for brevity
@@ -248,7 +203,7 @@ void init_population(ga_vector &population,
     {
         ga_struct citizen;
 
-        citizen.max = 0;
+        citizen.conflicts = 0;
         citizen.str.clear();
 
         for (int j = 0; j < tsize; j++)
@@ -265,32 +220,13 @@ void calc_fitness(ga_vector &population)
     for (int i = 0; i < GA_POPSIZE; i++)
     {
         auto &citizen = population[i];
-        citizen.max = 0;
-        for (auto &hidden : hidden_words)
-        {
-            auto possible_words = hidden_words;
-            for (auto &guess : citizen.str)
-            {
-                auto hint = evaluate_guess(guess, hidden);
-                possible_words = FilterWordList(hint, guess, possible_words);
-            }
-            if (possible_words.size() == 1)
-            {
-                citizen.max++;
-            }
-            else
-            {
-                break;
-            }
-        }
+        citizen.conflicts = conflicts(citizen.str);
     }
 }
 
 bool fitness_sort(ga_struct x, ga_struct y)
 {
-    if (x.max > y.max)
-        return true;
-    return false;
+    return x.conflicts < y.conflicts;
 }
 
 inline void sort_by_fitness(ga_vector &population)
@@ -304,7 +240,7 @@ void elitism(ga_vector &population,
     for (int i = 0; i < esize; i++)
     {
         buffer[i].str = population[i].str;
-        buffer[i].max = population[i].max;
+        buffer[i].conflicts = population[i].conflicts;
     }
 }
 
@@ -356,7 +292,7 @@ inline void print_best(ga_vector &gav)
     {
         std::cout << guess.to_s() << " ";
     }
-    std::cout << "\tLeft to solve:\t" << hidden_words.size() - gav[0].max;
+    std::cout << "\tConflicts:\t" << gav[0].conflicts;
 }
 
 inline void swap(ga_vector *&population,
@@ -393,7 +329,7 @@ int main()
         print_best(*population); // print the best one
         std::cout << std::endl;
 
-        if ((*population)[0].max == hidden_words.size())
+        if ((*population)[0].conflicts == 0)
             break;
 
         mate(*population, *buffer); // mate the population together
