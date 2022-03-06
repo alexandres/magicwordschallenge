@@ -4,7 +4,7 @@ TLDR: the 8 initial guesses `MODEL LEVIN TAPPA GRABS DURGY FLYTE CHAWK SPOOR` pr
 
 ## Updates
 
-- March 5th, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 6 words](https://github.com/alexandres/magicwordschallenge/issues/2) that solve Wordle! They are `COMBO FATTY GRRRL SPUDS VENGE WHILK`. This is very exciting: just one more word less and Wordle will be solved offline!
+- March 5th, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 6 words](https://github.com/alexandres/magicwordschallenge/issues/2) that solve Wordle! They are `COMBO FATTY GRRRL SPUDS VENGE WHILK`. This is very exciting: just one less word and Wordle will be solved offline!
 
 - March 2nd, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 7 words](https://github.com/alexandres/magicwordschallenge/issues/1) that solve Wordle! They are `CLANG FATTY ODDER RUMBA SKILL VERGE WHOOP`.
 
