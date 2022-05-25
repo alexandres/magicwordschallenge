@@ -4,6 +4,8 @@ TLDR: the 8 initial guesses `MODEL LEVIN TAPPA GRABS DURGY FLYTE CHAWK SPOOR` pr
 
 ## Updates
 
+- May 18th, 2022: [Laurent Poirrier](https://www.poirrier.ca/) has provided a definitive (negative) answer to the Magic Words Challenge: *at least 6 + 1 guesses are required to solve Wordle offline*, and so the 6 guess formulation of the original game cannot be solved offline. He has written [a wonderful post](https://www.poirrier.ca/notes/wordle-fixed/) about the result. **The Magic Words Challenge is now officially ended!**
+
 - March 5th, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 6 words](https://github.com/alexandres/magicwordschallenge/issues/2) that solve Wordle! They are `COMBO FATTY GRRRL SPUDS VENGE WHILK`. This is very exciting: just one less word and Wordle will be solved offline!
 
 - March 2nd, 2022: [Virgile Andreani](https://github.com/Armavica) has [found a set of 7 words](https://github.com/alexandres/magicwordschallenge/issues/1) that solve Wordle! They are `CLANG FATTY ODDER RUMBA SKILL VERGE WHOOP`.
